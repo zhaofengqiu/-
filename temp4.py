@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import pytesseract
 from lxml import etree
 session=requests.session()
-cookiejars=""
+Cookies={}
 headers={
     'Host':'rz.wzu.edu.cn',
      'Origin':'http://rz.wzu.edu.cn',
@@ -41,9 +41,13 @@ def login(numble,user,pwd):#用户登录
     soup=soup.find(attrs={'name':'lt'})
     postdata['lt']=soup['value']
     session.post('http://rz.wzu.edu.cn/zfca/login',data=postdata,headers=headers)
+
+    session.get('http://rz.wzu.edu.cn/zfca/login?yhlx=student&login=0122579031373493708&url=xs_main.aspx')#获取session_id
+
+    for key,value in dict(session.cookies.get_dict()).items():
+        Cookies[key] = value
     page=session.get('http://portal.wzu.edu.cn/portal.do?caUserName=17211134120').text
 
-    cookiejars=session.cookies
 
     page=BeautifulSoup(page,'html.parser')
     try:
@@ -54,28 +58,23 @@ def login(numble,user,pwd):#用户登录
     except:
         return ['none','none']
 def getmessage(user,name):#获取个人信息里面的东西
-
     headers['Referer'] = 'http://jwc3.wzu.edu.cn/xs_main.aspx?xh=%s&type=1' % (user)
     headers['Host'] = 'jwc3.wzu.edu.cn'
     headers['Upgrade-Insecure-Requests'] = '1'
-    Cookies = {'ASP.NET_SessionId': 'daiexo55x45kyz45cmhd2crs'}
-    for key, value in cookiejars.items():
-        Cookies[key] = value
     headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
     url = 'http://jwc3.wzu.edu.cn/xsgrxx.aspx?xh=%s&xm=%s&gnmkdm=N121501' % (user, name)
     page = session.get(url, headers=headers, cookies=Cookies)#这里是获取个人信息，由于不知道要什么信息，所以先以message的信息存储。
     page=BeautifulSoup(page.text,'html.parser')
-    get_userphoto(user)
 def get_userphoto(user):#获取user对应的图片
-    Cookie = {'ASP.NET_SessionId': 'daiexo55x45kyz45cmhd2crs'}
+
     r = session.get('http://192.168.10.3/xgxt/xsxx_xsgl.do?method=showPhoto&xh=%s' % (user))
     if len(r.content) > 10000:
         root = 'E://pt/%s.jpeg' % (user)
         with open(root, 'wb+') as f:
             f.write(r.content)
             f.close()
-    im = Image.open(root)#弹出图片
-    im.show()
+        im = Image.open(root)#弹出图片
+        im.show()
 def process():
     user=input("学号：")
     pwd=input("密码：")
@@ -94,5 +93,4 @@ def process():
 
 if __name__ == '__main__':
     process()
-
 
