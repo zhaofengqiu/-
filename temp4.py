@@ -46,7 +46,7 @@ def login(numble,user,pwd):#用户登录
 
     for key,value in dict(session.cookies.get_dict()).items():
         Cookies[key] = value
-    page=session.get('http://portal.wzu.edu.cn/portal.do?caUserName=17211134120').text
+    page=session.get('http://portal.wzu.edu.cn/portal.do?caUserName=%s'%(numble)).text
 
 
     page=BeautifulSoup(page,'html.parser')
